@@ -3,6 +3,7 @@ import path from 'path';
 
 import { Post } from './entities/Post';
 import { _prod_ } from './constants';
+import { User } from './entities/User';
 
 export default {
   migrations: {
@@ -10,7 +11,7 @@ export default {
     pattern: /^[\w-]+\d+\.[tj]s$/,
     disableForeignKeys: false,
   },
-  entities: [Post],
+  entities: [Post, User],
   dbName: 'lireddit',
   user: 'dev',
   password: 'dev',
