@@ -1,4 +1,3 @@
-import { MikroORM } from '@mikro-orm/core';
 import 'reflect-metadata';
 import express from 'express';
 import { ApolloServer } from 'apollo-server-express';
@@ -7,19 +6,30 @@ import Redis from 'ioredis';
 import session from 'express-session';
 import connectRedis from 'connect-redis';
 import cors from 'cors';
+import { createConnection } from 'typeorm';
 
 import { PostResolver } from './graphql/resolvers/postResolvers';
 import { COOKIE_NAME, _prod_ } from './constants';
-import mikroOrmConfig from './mikro-orm.config';
 import { UserResolver } from './graphql/resolvers/userResolvers';
 import { MyContext } from './types';
+import { User } from './entities/User';
+import { Post } from './entities/Post';
 
 require('dotenv').config({ path: __dirname + '/.env' });
 
 const main = async () => {
   const PORT = process.env.PORT ?? 4000;
-  const orm = await MikroORM.init(mikroOrmConfig);
-  await orm.getMigrator().up();
+  const connection = await createConnection({
+    type: 'postgres',
+    host: 'localhost',
+    port: 5432,
+    username: 'dev',
+    password: 'dev',
+    database: 'lireddit_type_orm',
+    logging: true,
+    synchronize: true,
+    entities: [Post, User],
+  });
 
   const app = express();
 
@@ -48,7 +58,7 @@ const main = async () => {
       resolvers: [PostResolver, UserResolver],
       validate: false,
     }),
-    context: ({ req, res }): MyContext => ({ em: orm.em, req, res, redis }),
+    context: ({ req, res }): MyContext => ({ req, res, redis }),
   });
 
   apolloServer.applyMiddleware({ app, cors: false });
