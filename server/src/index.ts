@@ -7,6 +7,7 @@ import session from 'express-session';
 import connectRedis from 'connect-redis';
 import cors from 'cors';
 import { createConnection } from 'typeorm';
+import path from 'path';
 
 import { PostResolver } from './graphql/resolvers/postResolvers';
 import { COOKIE_NAME, _prod_ } from './constants';
@@ -28,9 +29,10 @@ const main = async () => {
     database: 'lireddit_type_orm',
     logging: true,
     synchronize: true,
+    migrations: [path.join(__dirname, './migrations/*')],
     entities: [Post, User],
   });
-
+  await connection.runMigrations();
   const app = express();
 
   const RedisStore = connectRedis(session);
