@@ -3,10 +3,12 @@ import {
   Arg,
   Ctx,
   Field,
+  FieldResolver,
   Mutation,
   ObjectType,
   Query,
   Resolver,
+  Root,
 } from 'type-graphql';
 import { v4 as uuidv4 } from 'uuid';
 import { COOKIE_NAME, FORGOT_PASSWORD_PREFIX } from '../../constants';
@@ -32,8 +34,17 @@ class UserResponse {
   user?: User;
 }
 
-@Resolver()
+@Resolver(User)
 export class UserResolver {
+  @FieldResolver(() => String)
+  email(@Root() user: User, @Ctx() { req }: MyContext) {
+    //this is the current user and it's okay to show them the email
+    if (req.session.userId === user.id) {
+      return user.email;
+    }
+    return '';
+  }
+
   @Query(() => User, { nullable: true })
   async me(@Ctx() { req }: MyContext): Promise<User | undefined> {
     if (!req.session.userId) {
