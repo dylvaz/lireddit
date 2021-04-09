@@ -15,6 +15,7 @@ import { UserResolver } from './graphql/resolvers/userResolvers';
 import { MyContext } from './types';
 import { User } from './entities/User';
 import { Post } from './entities/Post';
+import { Upvote } from './entities/Upvote';
 
 require('dotenv').config({ path: __dirname + '/.env' });
 
@@ -30,7 +31,7 @@ const main = async () => {
     logging: true,
     synchronize: true,
     migrations: [path.join(__dirname, './migrations/*')],
-    entities: [Post, User],
+    entities: [Post, Upvote, User],
   });
   await connection.runMigrations();
   const app = express();
