@@ -40,7 +40,7 @@ const CreatePost: React.FC<CreatePostProps> = ({}) => {
               <InputField
                 name='title'
                 placeholder='title'
-                label='title'
+                label='Title'
                 type='text'
               />
               <Box mt={4}>
