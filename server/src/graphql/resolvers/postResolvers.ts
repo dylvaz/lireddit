@@ -91,7 +91,7 @@ export class PostResolver {
 
   @Query(() => Post, { nullable: true })
   post(@Arg('id', () => Int) id: number): Promise<Post | undefined> {
-    return Post.findOne(id);
+    return Post.findOne(id, { relations: ['creator'] });
   }
 
   @Mutation(() => Post)
@@ -112,32 +112,33 @@ export class PostResolver {
   }
 
   @Mutation(() => Post, { nullable: true })
+  @UseMiddleware(isAuth)
   async updatePost(
     @Arg('id', () => Int) id: number,
-    @Arg('title', () => String) title: string
+    @Arg('title', () => String) title: string,
+    @Arg('text', () => String) text: string,
+    @Ctx() { req }: MyContext
   ): Promise<Post | null> {
-    try {
-      const post = await Post.findOne(id);
-      if (!post) {
-        return null;
-      }
-      if (typeof title !== 'undefined') {
-        await Post.update({ id }, { title });
-      }
-      return post;
-    } catch (err) {
-      throw new Error(err);
-    }
+    const result = await getConnection()
+      .createQueryBuilder()
+      .update(Post)
+      .set({ title, text })
+      .where('id = :id and "creatorId" = :creatorId', {
+        id,
+        creatorId: req.session.userId,
+      })
+      .returning('*')
+      .execute();
+    return result.raw[0];
   }
 
   @Mutation(() => Boolean)
-  async deletePost(@Arg('id', () => Int) id: number): Promise<Boolean> {
-    try {
-      await Post.delete(id);
-    } catch (err) {
-      console.error(err);
-      return false;
-    }
+  @UseMiddleware(isAuth)
+  async deletePost(
+    @Arg('id', () => Int) id: number,
+    @Ctx() { req }: MyContext
+  ): Promise<Boolean> {
+    await Post.delete({ id, creatorId: req.session.userId });
     return true;
   }
 
