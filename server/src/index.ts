@@ -16,6 +16,8 @@ import { MyContext } from './types';
 import { User } from './entities/User';
 import { Post } from './entities/Post';
 import { Upvote } from './entities/Upvote';
+import { createUserLoader } from './utils/createUserLoader';
+import { createUpvoteLoader } from './utils/createUpvoteLoader';
 
 require('dotenv').config({ path: __dirname + '/.env' });
 
@@ -61,7 +63,13 @@ const main = async () => {
       resolvers: [PostResolver, UserResolver],
       validate: false,
     }),
-    context: ({ req, res }): MyContext => ({ req, res, redis }),
+    context: ({ req, res }): MyContext => ({
+      req,
+      res,
+      redis,
+      userLoader: createUserLoader(),
+      upvoteLoader: createUpvoteLoader(),
+    }),
   });
 
   apolloServer.applyMiddleware({ app, cors: false });
