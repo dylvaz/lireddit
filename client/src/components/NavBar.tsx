@@ -1,5 +1,5 @@
 import React from 'react';
-import { Box, Flex, Link } from '@chakra-ui/layout';
+import { Box, Flex, Link, Heading } from '@chakra-ui/layout';
 import { Button } from '@chakra-ui/button';
 import NextLink from 'next/link';
 
@@ -28,7 +28,12 @@ const NavBar: React.FC<NavBarProps> = ({}) => {
     );
   } else {
     body = (
-      <Flex>
+      <Flex align='center'>
+        <NextLink href='/create-post'>
+          <Button as={Link} mr={4}>
+            create post
+          </Button>
+        </NextLink>
         <Box mr={2}>{data.me.username}</Box>
         <Button
           onClick={() => {
@@ -44,7 +49,14 @@ const NavBar: React.FC<NavBarProps> = ({}) => {
   }
   return (
     <Flex zIndex={1} pos='sticky' top={0} bg='tan' p={4} ml={'auto'}>
-      <Box ml='auto'>{body}</Box>
+      <Flex flex={1} m='auto' maxW={800} align='center'>
+        <NextLink href='/'>
+          <Link>
+            <Heading>LiReddit</Heading>
+          </Link>
+        </NextLink>
+        <Box ml='auto'>{body}</Box>
+      </Flex>
     </Flex>
   );
 };
