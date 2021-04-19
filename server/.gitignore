@@ -118,3 +118,6 @@ Thumbs.db
 
 # Local Netlify folder
 .netlify
+
+# deploy script 
+/deploy.sh
