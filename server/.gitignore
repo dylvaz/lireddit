@@ -104,6 +104,7 @@ jspm_packages/
 
 # dotenv environment variables file
 .env
+.env.production
 
 # next.js build output
 .next
