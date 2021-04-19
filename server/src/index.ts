@@ -1,5 +1,5 @@
 import 'reflect-metadata';
-import 'dotenv-safe';
+import { config } from 'dotenv-safe';
 import express from 'express';
 import { ApolloServer } from 'apollo-server-express';
 import { buildSchema } from 'type-graphql';
@@ -21,6 +21,7 @@ import { createUserLoader } from './utils/createUserLoader';
 import { createUpvoteLoader } from './utils/createUpvoteLoader';
 
 const main = async () => {
+  config();
   const connection = await createConnection({
     type: 'postgres',
     url: process.env.DATABASE_URL,
@@ -28,6 +29,7 @@ const main = async () => {
     migrations: [path.join(__dirname, './migrations/*')],
     entities: [Post, Upvote, User],
   });
+
   await connection.runMigrations();
   const app = express();
 
