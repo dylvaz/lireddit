@@ -37,7 +37,7 @@ const main = async () => {
   const redis = new Redis(process.env.REDIS_URL);
 
   //letting express know about the nginx proxy so it forwards cookies and session :)
-  app.set('proxy', 1);
+  app.set('trust proxy', 1);
 
   app.use(cors({ origin: process.env.CORS_ORGIN, credentials: true }));
 
