@@ -1,4 +1,5 @@
 import 'reflect-metadata';
+import 'dotenv-safe';
 import express from 'express';
 import { ApolloServer } from 'apollo-server-express';
 import { buildSchema } from 'type-graphql';
@@ -19,19 +20,11 @@ import { Upvote } from './entities/Upvote';
 import { createUserLoader } from './utils/createUserLoader';
 import { createUpvoteLoader } from './utils/createUpvoteLoader';
 
-require('dotenv').config({ path: __dirname + '/.env' });
-
 const main = async () => {
-  const PORT = process.env.PORT ?? 4000;
   const connection = await createConnection({
     type: 'postgres',
-    host: 'localhost',
-    port: 5432,
-    username: 'dev',
-    password: 'dev',
-    database: 'lireddit_type_orm',
+    url: process.env.DATABASE_URL,
     logging: true,
-    synchronize: true,
     migrations: [path.join(__dirname, './migrations/*')],
     entities: [Post, Upvote, User],
   });
@@ -39,8 +32,12 @@ const main = async () => {
   const app = express();
 
   const RedisStore = connectRedis(session);
-  const redis = new Redis();
-  app.use(cors({ origin: 'http://localhost:3000', credentials: true }));
+  const redis = new Redis(process.env.REDIS_URL);
+
+  //letting express know about the nginx proxy so it forwards cookies and session :)
+  app.set('proxy', 1);
+
+  app.use(cors({ origin: process.env.CORS_ORGIN, credentials: true }));
 
   app.use(
     session({
@@ -51,9 +48,10 @@ const main = async () => {
         httpOnly: true,
         secure: _prod_,
         sameSite: 'lax',
+        domain: _prod_ ? '.dylvaz.dev' : undefined,
       },
       saveUninitialized: false,
-      secret: 'MFDOOMLAKERS',
+      secret: process.env.SECRET_KEY,
       resave: false,
     })
   );
@@ -74,8 +72,8 @@ const main = async () => {
 
   apolloServer.applyMiddleware({ app, cors: false });
 
-  app.listen(PORT, () => {
-    console.log(`Server running on http://localhost:${PORT} 👻`);
+  app.listen(process.env.PORT, () => {
+    console.log(`Server running on http://localhost:${process.env.PORT} 👻`);
   });
 };
 
