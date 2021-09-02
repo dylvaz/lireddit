@@ -57,6 +57,11 @@ const Login: React.FC<loginProps> = ({}) => {
             >
               Login
             </Button>
+            <NextLink href='/register'>
+              <Button mt={4} ml={2} colorScheme='teal'>
+                Register
+              </Button>
+            </NextLink>
             <NextLink href='/forgot-password'>
               <Button mt={4} ml={2} colorScheme='teal'>
                 Forgot Password?
