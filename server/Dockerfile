@@ -1,4 +1,4 @@
-FROM node:14
+FROM node:16
 
 # Create app directory
 WORKDIR /usr/src/app
@@ -11,6 +11,7 @@ COPY yarn.lock ./
 RUN yarn
 
 COPY . .
+COPY ormconfig.docker.json ./ormconfig.json
 COPY .env.production .env
 
 RUN yarn build
