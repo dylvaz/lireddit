@@ -30,7 +30,20 @@ const main = async () => {
     entities: [Post, Upvote, User],
   });
 
-  await connection.runMigrations();
+  let retries = 5;
+  while (retries) {
+    try {
+      await connection.runMigrations();
+      break;
+    } catch (err) {
+      console.log(err);
+      retries -= 1;
+      console.log(`retries left: ${retries}`);
+      // wait 5 seconds before attempting to connect to the psql db again
+      await new Promise((res) => setTimeout(res, 5000));
+    }
+  }
+
   const app = express();
 
   const RedisStore = connectRedis(session);
@@ -48,9 +61,8 @@ const main = async () => {
       cookie: {
         maxAge: 1000 * 60 * 60 * 24 * 365 * 10,
         httpOnly: true,
-        secure: _prod_,
+        secure: false,
         sameSite: 'lax',
-        domain: _prod_ ? '.dylvaz.dev' : undefined,
       },
       saveUninitialized: false,
       secret: process.env.SECRET_KEY,
@@ -59,6 +71,8 @@ const main = async () => {
   );
 
   const apolloServer = new ApolloServer({
+    playground: true,
+    introspection: true,
     schema: await buildSchema({
       resolvers: [PostResolver, UserResolver],
       validate: false,
@@ -75,7 +89,9 @@ const main = async () => {
   apolloServer.applyMiddleware({ app, cors: false });
 
   app.listen(process.env.PORT, () => {
-    console.log(`Server running on http://localhost:${process.env.PORT} 👻`);
+    console.log(
+      `Server running on http://localhost:${process.env.PORT}/graphql 👻`
+    );
   });
 };
 
