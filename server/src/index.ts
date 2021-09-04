@@ -30,15 +30,15 @@ const main = async () => {
     entities: [Post, Upvote, User],
   });
 
-  let retries = 5;
-  while (retries) {
+  let retriesDB = 5;
+  while (retriesDB) {
     try {
       await connection.runMigrations();
       break;
     } catch (err) {
       console.log(err);
-      retries -= 1;
-      console.log(`retries left: ${retries}`);
+      retriesDB -= 1;
+      console.log(`retries left: ${retriesDB}`);
       // wait 5 seconds before attempting to connect to the psql db again
       await new Promise((res) => setTimeout(res, 5000));
     }
@@ -54,21 +54,34 @@ const main = async () => {
 
   app.use(cors({ origin: process.env.CORS_ORGIN, credentials: true }));
 
-  app.use(
-    session({
-      name: COOKIE_NAME,
-      store: new RedisStore({ client: redis, disableTouch: false }),
-      cookie: {
-        maxAge: 1000 * 60 * 60 * 24 * 365 * 10,
-        httpOnly: true,
-        secure: false,
-        sameSite: 'lax',
-      },
-      saveUninitialized: false,
-      secret: process.env.SECRET_KEY,
-      resave: false,
-    })
-  );
+  let retriesRedis = 5;
+
+  while (retriesRedis) {
+    try {
+      app.use(
+        session({
+          name: COOKIE_NAME,
+          store: new RedisStore({ client: redis, disableTouch: false }),
+          cookie: {
+            maxAge: 1000 * 60 * 60 * 24 * 365 * 10,
+            httpOnly: true,
+            secure: false,
+            sameSite: 'lax',
+          },
+          saveUninitialized: false,
+          secret: process.env.SECRET_KEY,
+          resave: false,
+        })
+      );
+      break;
+    } catch (err) {
+      console.log(err);
+      retriesRedis -= 1;
+      console.log(`retries left: ${retriesRedis}`);
+      // wait 5 seconds before attempting to connect to the redis server again
+      await new Promise((res) => setTimeout(res, 5000));
+    }
+  }
 
   const apolloServer = new ApolloServer({
     playground: true,
