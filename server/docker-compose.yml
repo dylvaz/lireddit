@@ -1,4 +1,4 @@
-version: "3.9"
+version: "3"
 services: 
   db:
     image: postgres
@@ -11,16 +11,32 @@ services:
       - ./pgdata:/var/lib/data
     ports: 
       - '5432:5432'
-    links: 
-      - redis
+    logging: 
+      driver: awslogs
+      options: 
+        awslogs-group: lireddit-db
+        awslogs-region: us-west-1
+        awslogs-stream-prefix: db
   redis:
     image: redis
     ports: 
       - '6379:6379'
+    logging: 
+      driver: awslogs
+      options: 
+        awslogs-group: lireddit-redis
+        awslogs-region: us-west-1
+        awslogs-stream-prefix: redis
   web: 
-    image: dylvaz/lireddit:1.0.3
+    image: dylvaz/lireddit:1.0.7
     depends_on: 
       - db
       - redis
     ports: 
       - '80:8080'
+    logging: 
+      driver: awslogs
+      options: 
+        awslogs-group: lireddit-web
+        awslogs-region: us-west-1
+        awslogs-stream-prefix: web
