@@ -19,7 +19,7 @@ Navigate to lireddit/server
 
 Build and run the app with
 `docker-compose up -d`
-this will start the server on [localhost:8080/graphql](http://localhost:8080/graphql)
+this will start the server on [localhost:8080/graphql](http://localhost:8080/graphql) where you can visually see the graphQL schema as well as test the API in the playground.
 
 ### Starting the Frontend
 
