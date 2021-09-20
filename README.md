@@ -28,8 +28,8 @@ Navigate to lireddit/client
 Create a .env file like this:
 `NEXT_PUBLIC_API_URL: http://localhost:8080/graphql`
 
-run
-`yarn add`
+run\
+`yarn install`\
 `yarn dev`
 
 navigate to [localhost:3000](http://localhost:3000) to see the app!
